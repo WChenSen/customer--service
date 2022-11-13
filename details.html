@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport"
+		content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,viewport-fit=cover">
+	<title>客户服务</title>
+	<link rel="stylesheet" href="./css/weui.min.css">
+	<link rel="stylesheet" href="./css/index.css">
+	<script src="./js/axios.min.js"></script>
+	<script src="./js/axiosConfig.js"></script>
+
+	<!-- 测试使用 -->
+	<script src="./js/mock.js"></script>
+</head>
+
+<body class="safe-area">
+	<div id="app">
+
+	</div>
+
+	<script>
+		const manageCode = 'faq0001'
+		queryFAQEntityByCode({ manageCode }).then(data => {
+			document.getElementById('app').innerHTML = testData.richTextHtml
+		}).finally(() => {
+			console.log(111);
+			document.getElementById('app').innerHTML = testData.richTextHtml
+		})
+	</script>
+</body>
+
+</html>

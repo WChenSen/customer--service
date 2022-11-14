@@ -10,10 +10,7 @@
 	<link rel="stylesheet" href="./css/weui.min.css">
 	<link rel="stylesheet" href="./css/index.css">
 	<script src="./js/axios.min.js"></script>
-	<script src="./js/axiosConfig.js"></script>
-
-	<!-- 测试使用 -->
-	<script src="./js/mock.js"></script>
+	<script src="./js/index.js"></script>
 </head>
 
 <body class="safe-area">
@@ -22,12 +19,10 @@
 	</div>
 
 	<script>
-		const manageCode = 'faq0001'
+
+		const manageCode = getQueryString('manageCode') || 0
 		queryFAQEntityByCode({ manageCode }).then(data => {
-			document.getElementById('app').innerHTML = testData.richTextHtml
-		}).finally(() => {
-			console.log(111);
-			document.getElementById('app').innerHTML = testData.richTextHtml
+			document.getElementById('app').innerHTML = data.data.richTextHtml
 		})
 	</script>
 </body>

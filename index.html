@@ -11,16 +11,12 @@
 	<link rel="stylesheet" href="./css/index.css">
 	<script src="./js/vue.global.prod.js"></script>
 	<script src="./js/axios.min.js"></script>
-	<script src="./js/axiosConfig.js"></script>
+	<script src="./js/index.js"></script>
 
-	<!-- 测试使用 -->
-	<script src="./js/mock.js"></script>
 </head>
 
 <body class="safe-area">
-
 	<div id="app">
-
 		<header class="banner">
 			<div class="swiper">
 				<img src="./images/banner.png" alt="">
@@ -32,8 +28,9 @@
 				<div class="tab-nav">
 					<div class="tab-list">
 						<div class="tab " v-for="(item,index) in nav" :key="item.faqId"
-							:class="{active:navActive===index}" @click="setNavActive(index,$event)">
-							<span>{{item.manageCodeName}}</span>
+							:class="{active:+item.faqSortId===+currentNavId}"
+							@click="setNavActiveId(item.faqSortId,$event)">
+							<span>{{item.sortName}}</span>
 							<span class="line"></span>
 						</div>
 					</div>
@@ -41,7 +38,7 @@
 			</div>
 			<div class="tab-content">
 				<div class="weui-cells" v-if="contentList.length">
-					<a class="weui-cell  weui-cell_access " :href="`/details.html?code=${item.manageCode}`"
+					<a class="weui-cell  weui-cell_access " :href="`/details.html?manageCode=${item.manageCode}`"
 						class="flex item " v-for="(item) in contentList" :key="item.manageCode">
 						<div class="weui-cell__bd">
 							<p><b>{{item.manageCodeName}}</b></p>
@@ -52,6 +49,7 @@
 				<div class="empty" v-else>
 					<div class="empty-image">
 						<img src="./images/custom-empty-image.png">
+						<p class="empty-desc">暂无内容</p>
 					</div>
 				</div>
 			</div>
@@ -102,9 +100,10 @@
 		const { createApp, ref } = Vue
 		createApp({
 			data () {
+				const currentNavId = getQueryString('faqSortId') || 0
 				return {
-					nav,
-					navActive: 0,
+					nav: [],
+					currentNavId,
 					contentList: [],
 					loading: false,
 					errorToastOpts: {
@@ -114,35 +113,40 @@
 				}
 			},
 			watch: {
-				navActive: {
+				currentNavId: {
 					handler (newVal) {
-						const faqId = this.nav[this.navActive].faqId
-						this.loading = true
-						queryFAQListByTypes({ sortlist: [faqId] }).then(data => {
-							this.loading = false
-
-							this.contentList = data
-						}).catch(msg => {
-							this.loading = false
-							this.showErrorToast(msg)
-
-						}).finally(() => {
-							this.contentList = sortList
-						})
+						this.getManageList()
 					},
+				},
+				nav () {
+					this.getManageList()
 				}
 			},
 
 			created () {
-				queryFaqManageList({ "size": 99, "page": 1, "titleName": "", "faqSortId": "" }).then((res) => {
-					console.log('res', res);
-				}).catch(msg => {
-					this.showErrorToast(msg)
-				})
+				this.getCategoryList()
 			},
 			methods: {
-				setNavActive (index, e) {
-					this.navActive = index
+				getCategoryList () {
+					queryFAQTypeList().then((res) => {
+						this.nav = res.data
+					}).catch(msg => {
+						this.showErrorToast(msg)
+					})
+				},
+				getManageList () {
+					const ids = this.nav.find(item => +item.faqSortId === +this.currentNavId).faqSortId
+					this.loading = true
+					queryFaqManageList({ ids, manageCode: '' }).then(data => {
+						this.loading = false
+						this.contentList = data.data
+					}).catch(msg => {
+						this.loading = false
+						this.showErrorToast(msg)
+					})
+				},
+				setNavActiveId (id, e) {
+					this.currentNavId = id
 					this.scrollIntoView(e.currentTarget)
 				},
 				showErrorToast (msg, duration = 800) {
